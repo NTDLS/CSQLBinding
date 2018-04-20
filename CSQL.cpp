@@ -18,8 +18,8 @@
 #include "CRecordSet.H"
 
 #ifdef _USE_GLOBAL_MEMPOOL
-#include "../CMemPool/CMemPool.H"
-extern CMemPool *pMem; //gMem must be defined and initalized elsewhere.
+#include "../NSWFL/NSWFL.h"
+extern NSWFL::Memory::MemoryPool *pMem; //gMem must be defined and initalized elsewhere.
 #endif
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
