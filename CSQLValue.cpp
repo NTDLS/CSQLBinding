@@ -21,7 +21,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SQLLEN CSQLValue::RTrim(char *sData, SQLLEN iDataSz)
+SQLLEN CSQLValue::RTrim(char* sData, SQLLEN iDataSz)
 {
 	SQLLEN iPos = iDataSz;
 
@@ -46,7 +46,7 @@ SQLLEN CSQLValue::RTrim(char *sData, SQLLEN iDataSz)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSQLValue::ReplaceSingleQuotes(char *sData, SQLLEN iDataSz)
+void CSQLValue::ReplaceSingleQuotes(char* sData, SQLLEN iDataSz)
 {
 	int iRPos = 0;
 
@@ -73,28 +73,28 @@ void CSQLValue::Initialize(LPRECORDSET_COLUMNINFO lpColumnValue,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQLValue::IsValid(void)
+bool CSQLValue::IsValid()
 {
 	return this->bcIsValid;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQLValue::IsNull(void)
+bool CSQLValue::IsNull()
 {
 	return this->lpCValue->Data.IsNull;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SQLLEN CSQLValue::Size(void)
+SQLLEN CSQLValue::Size()
 {
 	return this->lpCValue->Data.Size;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SQLLEN CSQLValue::ToString(char *sOut, int iMaxSz)
+SQLLEN CSQLValue::ToString(char* sOut, int iMaxSz)
 {
 	if (this == NULL || this->lpCValue == NULL || this->lpCValue->Data.IsNull)
 	{
@@ -109,7 +109,7 @@ SQLLEN CSQLValue::ToString(char *sOut, int iMaxSz)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-char *CSQLValue::ToString(void)
+char* CSQLValue::ToString()
 {
 	if (this == NULL || this->lpCValue == NULL || this->lpCValue->Data.IsNull)
 	{
@@ -120,126 +120,125 @@ char *CSQLValue::ToString(void)
 	{
 		if (this->bcTrimCharData)
 		{
-			this->RTrim(((char *)this->lpCValue->Data.Buffer), this->lpCValue->Data.Size);
+			this->RTrim(((char*)this->lpCValue->Data.Buffer), this->lpCValue->Data.Size);
 		}
 		if (this->bcReplaceSingleQuotes)
 		{
-			this->ReplaceSingleQuotes(((char *)this->lpCValue->Data.Buffer), this->lpCValue->Data.Size);
+			this->ReplaceSingleQuotes(((char*)this->lpCValue->Data.Buffer), this->lpCValue->Data.Size);
 		}
 	}
 	else if (this->lpCValue->DataType == SQLTypes::VarChar || this->lpCValue->DataType == SQLTypes::NVarChar)
 	{
 		if (this->bcReplaceSingleQuotes)
 		{
-			this->ReplaceSingleQuotes(((char *)this->lpCValue->Data.Buffer), this->lpCValue->Data.Size);
+			this->ReplaceSingleQuotes(((char*)this->lpCValue->Data.Buffer), this->lpCValue->Data.Size);
 		}
 	}
-	return (char *)this->lpCValue->Data.Buffer;
+	return (char*)this->lpCValue->Data.Buffer;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQLValue::ToBoolean(void)
+bool CSQLValue::ToBoolean()
 {
 	if (this == NULL || this->lpCValue == NULL || this->lpCValue->Data.IsNull)
 	{
 		return 0;
 	}
-	return *(bool *)this->lpCValue->Data.Buffer;
+	return *(bool*)this->lpCValue->Data.Buffer;
 }
-
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-signed int CSQLValue::ToIntegerS(void)
+signed int CSQLValue::ToSignedInt()
 {
 	if (this == NULL || this->lpCValue == NULL || this->lpCValue->Data.IsNull)
 	{
 		return 0;
 	}
-	return *(signed int *)this->lpCValue->Data.Buffer;
+	return *(signed int*)this->lpCValue->Data.Buffer;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-unsigned int CSQLValue::ToIntegerU(void)
+unsigned int CSQLValue::ToUnsignedInt()
 {
 	if (this == NULL || this->lpCValue == NULL || this->lpCValue->Data.IsNull)
 	{
 		return 0;
 	}
-	return *(unsigned int *)this->lpCValue->Data.Buffer;
+	return *(unsigned int*)this->lpCValue->Data.Buffer;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-signed short CSQLValue::ToShortS(void)
+signed short CSQLValue::ToSignedShort()
 {
 	if (this == NULL || this->lpCValue == NULL || this->lpCValue->Data.IsNull)
 	{
 		return 0;
 	}
-	return *(signed short *)this->lpCValue->Data.Buffer;
+	return *(signed short*)this->lpCValue->Data.Buffer;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-unsigned short CSQLValue::ToShortU(void)
+unsigned short CSQLValue::ToUnsignedShort()
 {
 	if (this == NULL || this->lpCValue == NULL || this->lpCValue->Data.IsNull)
 	{
 		return 0;
 	}
-	return *(unsigned short *)this->lpCValue->Data.Buffer;
+	return *(unsigned short*)this->lpCValue->Data.Buffer;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-double CSQLValue::ToDouble(void)
+double CSQLValue::ToDouble()
 {
 	if (this == NULL || this->lpCValue == NULL || this->lpCValue->Data.IsNull)
 	{
 		return 0;
 	}
-	return *(double *)this->lpCValue->Data.Buffer;
+	return *(double*)this->lpCValue->Data.Buffer;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-float CSQLValue::ToFloat(void)
+float CSQLValue::ToFloat()
 {
 	if (this == NULL || this->lpCValue == NULL || this->lpCValue->Data.IsNull)
 	{
 		return 0;
 	}
-	return *(float *)this->lpCValue->Data.Buffer;
+	return *(float*)this->lpCValue->Data.Buffer;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-unsigned __int64 CSQLValue::ToI64U(void)
+unsigned __int64 CSQLValue::ToUnsignedInt64()
 {
 	if (this == NULL || this->lpCValue == NULL || this->lpCValue->Data.IsNull)
 	{
 		return 0;
 	}
-	return *(unsigned __int64 *)this->lpCValue->Data.Buffer;
+	return *(unsigned __int64*)this->lpCValue->Data.Buffer;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-signed __int64 CSQLValue::ToI64S(void)
+signed __int64 CSQLValue::ToSignedInt64()
 {
 	if (this == NULL || this->lpCValue == NULL || this->lpCValue->Data.IsNull)
 	{
 		return 0;
 	}
-	return *(signed __int64 *)this->lpCValue->Data.Buffer;
+	return *(signed __int64*)this->lpCValue->Data.Buffer;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQLValue::ThrowErrors(void)
+bool CSQLValue::ThrowErrors()
 {
 	return this->bcThrowErrors;
 }
@@ -255,7 +254,7 @@ bool CSQLValue::ThrowErrors(bool bThrowErrors)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQLValue::TrimCharData(void)
+bool CSQLValue::TrimCharData()
 {
 	return this->bcTrimCharData;
 }
@@ -271,7 +270,7 @@ bool CSQLValue::TrimCharData(bool bTrimCharData)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQLValue::ReplaceSingleQuotes(void)
+bool CSQLValue::ReplaceSingleQuotes()
 {
 	return this->bcReplaceSingleQuotes;
 }

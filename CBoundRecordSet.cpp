@@ -19,11 +19,6 @@
 #include "CBoundRecordSet.H"
 #include "CSQLValue.H"
 
-#ifdef _USE_GLOBAL_MEMPOOL
-#include "../NSWFL/NSWFL.h"
-extern NSWFL::Memory::MemoryPool *pMem; //gMem must be defined and initalized elsewhere.
-#endif
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /* Returns one of the following:
 	CTypes::Bit
@@ -36,90 +31,56 @@ extern NSWFL::Memory::MemoryPool *pMem; //gMem must be defined and initalized el
 */
 CTypes::CType CBoundRecordSet::GetDefaultConversion(SQLTypes::SQLType DataType)
 {
-	CTypes::CType Value = CTypes::Char;
-
-	if (DataType == SQLTypes::BigInt) {
+	switch (DataType)
+	{
+	case SQLTypes::BigInt:
 		return CTypes::SBigInt;
-	}
-	else if (DataType == SQLTypes::Binary) {
-		return CTypes::Char;
-	}
-	else if (DataType == SQLTypes::Bit) {
-		return CTypes::Bit;
-	}
-	else if (DataType == SQLTypes::Char) {
-		return CTypes::Char;
-	}
-	else if (DataType == SQLTypes::DateTime) {
-		return CTypes::Char;
-	}
-	else if (DataType == SQLTypes::Decimal) {
-		return CTypes::Double;
-	}
-	else if (DataType == SQLTypes::Float) {
-		return CTypes::Float;
-	}
-	else if (DataType == SQLTypes::Image) {
-		return CTypes::Char;
-	}
-	else if (DataType == SQLTypes::Int) {
-		return CTypes::SLong;
-	}
-	else if (DataType == SQLTypes::Money) {
-		return CTypes::Double;
-	}
-	else if (DataType == SQLTypes::NChar) {
-		return CTypes::Char;
-	}
-	else if (DataType == SQLTypes::NText) {
-		return CTypes::Char;
-	}
-	else if (DataType == SQLTypes::Numeric) {
-		return CTypes::SLong;
-	}
-	else if (DataType == SQLTypes::NVarChar) {
-		return CTypes::Char;
-	}
-	else if (DataType == SQLTypes::Real) {
-		return CTypes::Double;
-	}
-	else if (DataType == SQLTypes::SmallDateTime) {
-		return CTypes::Char;
-	}
-	else if (DataType == SQLTypes::SmallInt) {
-		return CTypes::SShort;
-	}
-	else if (DataType == SQLTypes::SmallMoney) {
-		return CTypes::Double;
-	}
-	else if (DataType == SQLTypes::Text) {
-		return CTypes::Char;
-	}
-	else if (DataType == SQLTypes::TimeStamp) {
-		return CTypes::Char;
-	}
-	else if (DataType == SQLTypes::TinyInt) {
-		return CTypes::SShort;
-	}
-	else if (DataType == SQLTypes::UniqueIdentifier) {
-		return CTypes::Char;
-	}
-	else if (DataType == SQLTypes::VarBinary) {
-		return CTypes::Char;
-	}
-	else if (DataType == SQLTypes::VarChar) {
-		return CTypes::Char;
-	}
-	else if (DataType == SQLTypes::Variant) {
-		return CTypes::Char;
-	}
 
-	return Value;
+	case SQLTypes::UniqueIdentifier:
+	case SQLTypes::VarBinary:
+	case SQLTypes::VarChar:
+	case SQLTypes::Variant:
+	case SQLTypes::NChar:
+	case SQLTypes::NText:
+	case SQLTypes::NVarChar:
+	case SQLTypes::Image:
+	case SQLTypes::Char:
+	case SQLTypes::DateTime:
+	case SQLTypes::Binary:
+		//case SQLTypes::SmallDateTime: //Same as DateTime
+	case SQLTypes::Text:
+		//case SQLTypes::TimeStamp: //Same as DateTime
+		return CTypes::Char;
+
+	case SQLTypes::Bit:
+		return CTypes::Bit;
+
+	case SQLTypes::Real:
+		//case SQLTypes::SmallMoney:  //Same as Money
+		//case SQLTypes::Decimal: //Same as Money
+	case SQLTypes::Money:
+		return CTypes::Double;
+
+	case SQLTypes::Float:
+		return CTypes::Float;
+
+	case SQLTypes::Int:
+	case SQLTypes::Numeric:
+		return CTypes::SLong;
+
+	case SQLTypes::SmallInt:
+	case SQLTypes::TinyInt:
+		return CTypes::SShort;
+		return CTypes::SShort;
+
+	default:
+		return CTypes::Char;
+	}
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CBoundRecordSet::Reset(void)
+bool CBoundRecordSet::Reset()
 {
 	bool bResult = true;
 
@@ -131,30 +92,22 @@ bool CBoundRecordSet::Reset(void)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CBoundRecordSet::Close(void)
+bool CBoundRecordSet::Close()
 {
 	bool bResult = true;
 
 	if (this->Columns.Count > 0)
 	{
-		for (int iPos = 0; iPos < this->Columns.Count; iPos++)
+		for (int iColumnIndex = 0; iColumnIndex < this->Columns.Count; iColumnIndex++)
 		{
-			if (this->Columns.Column[iPos].IsBound)
+			if (this->Columns.Column[iColumnIndex].IsBound)
 			{
-#ifdef _USE_GLOBAL_MEMPOOL
-				pMem->Free(this->Columns.Column[iPos].Data.Buffer);
-#else
-				free(this->Columns.Column[iPos].Data.Buffer);
-#endif
-				this->Columns.Column[iPos].Data.Buffer = NULL;
+				free(this->Columns.Column[iColumnIndex].Data.Buffer);
+				this->Columns.Column[iColumnIndex].Data.Buffer = NULL;
 			}
 		}
 
-#ifdef _USE_GLOBAL_MEMPOOL
-		pMem->Free(this->Columns.Column);
-#else
 		free(this->Columns.Column);
-#endif
 	}
 
 	memset(&this->Columns, 0, sizeof(RECORDSET_COLUMN));
@@ -174,7 +127,7 @@ bool CBoundRecordSet::Close(void)
 /*
 	This function returns [true] if a row is "fetched", otherwise returns [false].
 */
-bool CBoundRecordSet::Fetch(int *iErrorCode)
+bool CBoundRecordSet::Fetch(int* iErrorCode)
 {
 	if (SQL_SUCCEEDED((((int)*iErrorCode) = SQLFetch(this->hSTMT))))
 	{
@@ -200,7 +153,7 @@ bool CBoundRecordSet::Fetch(int *iErrorCode)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CBoundRecordSet::Fetch(void)
+bool CBoundRecordSet::Fetch()
 {
 	int iErrorCode = 0;
 	return this->Fetch(&iErrorCode);
@@ -214,16 +167,16 @@ bool CBoundRecordSet::Fetch(void)
 	...
 	delete pValue;
 */
-CSQLValue *CBoundRecordSet::Values(const char *sColumnName)
+CSQLValue* CBoundRecordSet::Values(const char* sColumnName)
 {
-	int iIndex = this->GetColumnIndex(sColumnName);
+	int iColumnIndex = this->GetColumnIndex(sColumnName);
 
-	if (iIndex >= 0 && iIndex < this->Columns.Count)
+	if (iColumnIndex >= 0 && iColumnIndex < this->Columns.Count)
 	{
-		CSQLValue *pSQLValue = new CSQLValue;
+		CSQLValue* pSQLValue = new CSQLValue;
 		memset(pSQLValue, 0, sizeof(CSQLValue));
 
-		pSQLValue->Initialize(&this->Columns.Column[iIndex],
+		pSQLValue->Initialize(&this->Columns.Column[iColumnIndex],
 			this->TrimCharData(), this->ReplaceSingleQuotes(), this->ThrowErrors());
 
 		return pSQLValue;
@@ -239,15 +192,16 @@ CSQLValue *CBoundRecordSet::Values(const char *sColumnName)
 	...
 	delete pValue;
 */
-CSQLValue *CBoundRecordSet::Values(int iColumnIndex)
+CSQLValue* CBoundRecordSet::Values(int iColumnIndex)
 {
 	if (iColumnIndex >= 0 && iColumnIndex < this->Columns.Count)
 	{
-		CSQLValue *pSQLValue = new CSQLValue;
+		CSQLValue* pSQLValue = new CSQLValue;
 		memset(pSQLValue, 0, sizeof(CSQLValue));
 
 		pSQLValue->Initialize(&this->Columns.Column[iColumnIndex],
 			this->TrimCharData(), this->ReplaceSingleQuotes(), this->ThrowErrors());
+
 		return pSQLValue;
 	}
 	return NULL;
@@ -255,12 +209,12 @@ CSQLValue *CBoundRecordSet::Values(int iColumnIndex)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CBoundRecordSet::GetColumnInfo(const int iCol, char *sOutName, int iSzOfOutName, int *iOutColNameLen,
-	int *ioutDataType, SQLULEN *iOutColSize, int *iNumOfDeciPlaces, int *iColNullable)
+bool CBoundRecordSet::GetColumnInfo(const int iColumnIndex, char* sOutName, int iSzOfOutName, int* iOutColNameLen,
+	int* iOutDataType, SQLULEN* iOutColSize, int* iNumOfDeciPlaces, int* iColNullable)
 {
-	if (SQL_SUCCEEDED(SQLDescribeCol(this->hSTMT, iCol, (SQLCHAR *)sOutName, (SQLSMALLINT)iSzOfOutName,
-		(SQLSMALLINT *)iOutColNameLen, (SQLSMALLINT *)ioutDataType, iOutColSize,
-		(SQLSMALLINT *)iNumOfDeciPlaces, (SQLSMALLINT *)iColNullable)))
+	if (SQL_SUCCEEDED(SQLDescribeCol(this->hSTMT, iColumnIndex, (SQLCHAR*)sOutName, (SQLSMALLINT)iSzOfOutName,
+		(SQLSMALLINT*)iOutColNameLen, (SQLSMALLINT*)iOutDataType, iOutColSize,
+		(SQLSMALLINT*)iNumOfDeciPlaces, (SQLSMALLINT*)iColNullable)))
 	{
 		return true;
 	}
@@ -269,13 +223,13 @@ bool CBoundRecordSet::GetColumnInfo(const int iCol, char *sOutName, int iSzOfOut
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int CBoundRecordSet::GetColumnIndex(const char *sColumnName)
+int CBoundRecordSet::GetColumnIndex(const char* sColumnName)
 {
-	for (int iPos = 0; iPos < this->Columns.Count; iPos++)
+	for (int iColumnIndex = 0; iColumnIndex < this->Columns.Count; iColumnIndex++)
 	{
-		if (_stricmp(this->Columns.Column[iPos].Name, sColumnName) == 0)
+		if (_stricmp(this->Columns.Column[iColumnIndex].Name, sColumnName) == 0)
 		{
-			return iPos;
+			return iColumnIndex;
 		}
 	}
 
@@ -284,13 +238,13 @@ int CBoundRecordSet::GetColumnIndex(const char *sColumnName)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int CBoundRecordSet::GetColumnOrdinal(const char *sColumnName)
+int CBoundRecordSet::GetColumnOrdinal(const char* sColumnName)
 {
-	for (int iPos = 0; iPos < this->Columns.Count; iPos++)
+	for (int iColumnIndex = 0; iColumnIndex < this->Columns.Count; iColumnIndex++)
 	{
-		if (_stricmp(this->Columns.Column[iPos].Name, sColumnName) == 0)
+		if (_stricmp(this->Columns.Column[iColumnIndex].Name, sColumnName) == 0)
 		{
-			return this->Columns.Column[iPos].Ordinal;
+			return this->Columns.Column[iColumnIndex].Ordinal;
 		}
 	}
 
@@ -299,25 +253,21 @@ int CBoundRecordSet::GetColumnOrdinal(const char *sColumnName)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Bind [any] type.
-LPVOID CBoundRecordSet::Bind(int iIndex, CTypes::CType conversion)
+LPVOID CBoundRecordSet::Bind(int iColumnIndex, CTypes::CType conversion)
 {
-	if (iIndex < 0 || iIndex >= Columns.Count)
+	if (iColumnIndex < 0 || iColumnIndex >= Columns.Count)
 	{
 		return NULL;
 	}
 
-	LPRECORDSET_COLUMNINFO Pointer = &this->Columns.Column[iIndex];
+	LPRECORDSET_COLUMNINFO Pointer = &this->Columns.Column[iColumnIndex];
 
 	if (Pointer->IsBound)
 	{
 		return Pointer->Data.Buffer;
 	}
 
-#ifdef _USE_GLOBAL_MEMPOOL
-	Pointer->Data.Buffer = pMem->Allocate(Pointer->MaxSize + 1, 1);
-#else
 	Pointer->Data.Buffer = calloc(Pointer->MaxSize + 1, 1);
-#endif
 
 	SQLBindCol(this->hSTMT, Pointer->Ordinal,
 		(SQLSMALLINT)conversion, Pointer->Data.Buffer,
@@ -330,65 +280,65 @@ LPVOID CBoundRecordSet::Bind(int iIndex, CTypes::CType conversion)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-LPVOID CBoundRecordSet::Bind(const char *sColumnName, CTypes::CType conversion)
+LPVOID CBoundRecordSet::Bind(const char* sColumnName, CTypes::CType conversion)
 {
 	return this->Bind(this->GetColumnIndex(sColumnName), conversion);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Bind [binary] type. (returns char *)
-char *CBoundRecordSet::BindBinary(const char *sColumnName)
+char* CBoundRecordSet::BindBinary(const char* sColumnName)
 {
-	return (char *) this->Bind(this->GetColumnIndex(sColumnName), CTypes::Binary);
+	return (char*)this->Bind(this->GetColumnIndex(sColumnName), CTypes::Binary);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Bind [char] type.
-char *CBoundRecordSet::BindString(const char *sColumnName)
+char* CBoundRecordSet::BindString(const char* sColumnName)
 {
-	return (char *) this->Bind(this->GetColumnIndex(sColumnName), CTypes::Char);
+	return (char*)this->Bind(this->GetColumnIndex(sColumnName), CTypes::Char);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Bind [signed int] type
-signed int &CBoundRecordSet::BindSignedInteger(const char *sColumnName)
+signed int& CBoundRecordSet::BindSignedInteger(const char* sColumnName)
 {
-	return *(signed int *)this->Bind(this->GetColumnIndex(sColumnName), CTypes::SLong);
+	return *(signed int*)this->Bind(this->GetColumnIndex(sColumnName), CTypes::SLong);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Bind [unsigned int] type
-unsigned int &CBoundRecordSet::BindUnsignedInteger(const char *sColumnName)
+unsigned int& CBoundRecordSet::BindUnsignedInteger(const char* sColumnName)
 {
-	return *(unsigned int *)this->Bind(this->GetColumnIndex(sColumnName), CTypes::ULong);
+	return *(unsigned int*)this->Bind(this->GetColumnIndex(sColumnName), CTypes::ULong);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Bind [double] type
-double &CBoundRecordSet::BindDouble(const char *sColumnName)
+double& CBoundRecordSet::BindDouble(const char* sColumnName)
 {
-	return *(double *)this->Bind(this->GetColumnIndex(sColumnName), CTypes::Double);
+	return *(double*)this->Bind(this->GetColumnIndex(sColumnName), CTypes::Double);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Bind [float] type
-float &CBoundRecordSet::BindFloat(const char *sColumnName)
+float& CBoundRecordSet::BindFloat(const char* sColumnName)
 {
-	return *(float *)this->Bind(this->GetColumnIndex(sColumnName), CTypes::Float);
+	return *(float*)this->Bind(this->GetColumnIndex(sColumnName), CTypes::Float);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Bind [unsigned __int64] type
-unsigned __int64 &CBoundRecordSet::BindUnsignedI64(const char *sColumnName)
+unsigned __int64& CBoundRecordSet::BindUnsignedI64(const char* sColumnName)
 {
-	return *(unsigned __int64 *)this->Bind(this->GetColumnIndex(sColumnName), CTypes::UBigInt);
+	return *(unsigned __int64*)this->Bind(this->GetColumnIndex(sColumnName), CTypes::UBigInt);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Bind [__int64] type
-signed __int64 &CBoundRecordSet::BindSignedI64(const char *sColumnName)
+signed __int64& CBoundRecordSet::BindSignedI64(const char* sColumnName)
 {
-	return *(signed __int64 *)this->Bind(this->GetColumnIndex(sColumnName), CTypes::SBigInt);
+	return *(signed __int64*)this->Bind(this->GetColumnIndex(sColumnName), CTypes::SBigInt);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -418,26 +368,26 @@ CBoundRecordSet::~CBoundRecordSet()
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CBoundRecordSet::GetSQLState(char *sSQLState)
+bool CBoundRecordSet::GetSQLState(char* sSQLState)
 {
 	return SQL_SUCCEEDED(SQLError(NULL, NULL,
-		this->hSTMT, (SQLCHAR *)sSQLState, NULL, NULL, NULL, NULL));
+		this->hSTMT, (SQLCHAR*)sSQLState, NULL, NULL, NULL, NULL));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CBoundRecordSet::GetErrorMessage(int *iOutErr, char *sOutError, const int iErrBufSz)
+bool CBoundRecordSet::GetErrorMessage(int* iOutErr, char* sOutError, const int iErrBufSz)
 {
-	SQLCHAR     sSQLState[20];
+	SQLCHAR sSQLState[20];
 	SQLSMALLINT iOutErrorMsgSz;
 
 	return SQL_SUCCEEDED(SQLError(NULL, NULL, this->hSTMT, sSQLState,
-		(SQLINTEGER *)iOutErr, (SQLCHAR *)sOutError, iErrBufSz, &iOutErrorMsgSz));
+		(SQLINTEGER*)iOutErr, (SQLCHAR*)sOutError, iErrBufSz, &iOutErrorMsgSz));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CBoundRecordSet::ThrowErrorIfSet(void)
+bool CBoundRecordSet::ThrowErrorIfSet()
 {
 	if (this->ThrowErrors() == true)
 	{
@@ -449,7 +399,7 @@ bool CBoundRecordSet::ThrowErrorIfSet(void)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CBoundRecordSet::ThrowError(void)
+bool CBoundRecordSet::ThrowError()
 {
 	char sErrorMsg[2048];
 	int iNativeError = 0;
@@ -474,6 +424,9 @@ bool CBoundRecordSet::ThrowError(void)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// <summary>
+/// Sets the error handler callback.
+/// </summary>
 void CBoundRecordSet::SetErrorHandler(ErrorHandler pHandler)
 {
 	this->pErrorHandler = pHandler;
@@ -481,13 +434,19 @@ void CBoundRecordSet::SetErrorHandler(ErrorHandler pHandler)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CBoundRecordSet::ThrowErrors(void)
+/// <summary>
+/// Gets the Throw Errors mode.
+/// </summary>
+bool CBoundRecordSet::ThrowErrors()
 {
 	return this->bcThrowErrors;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// <summary>
+/// Sets the Throw Errors mode.
+/// </summary>
 bool CBoundRecordSet::ThrowErrors(bool bThrowErrors)
 {
 	bool bOldValue = this->bcThrowErrors;
@@ -497,13 +456,19 @@ bool CBoundRecordSet::ThrowErrors(bool bThrowErrors)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CBoundRecordSet::TrimCharData(void)
+/// <summary>
+/// Gets the Trim Char Data mode.
+/// </summary>
+bool CBoundRecordSet::TrimCharData()
 {
 	return this->bcTrimCharData;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// <summary>
+/// Sets the Trim Char Data mode.
+/// </summary>
 bool CBoundRecordSet::TrimCharData(bool bTrimCharData)
 {
 	bool bOldValue = this->bcTrimCharData;
@@ -513,13 +478,19 @@ bool CBoundRecordSet::TrimCharData(bool bTrimCharData)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CBoundRecordSet::ReplaceSingleQuotes(void)
+/// <summary>
+/// Gets the Replace Single Quotes mode.
+/// </summary>
+bool CBoundRecordSet::ReplaceSingleQuotes()
 {
 	return this->bcReplaceSingleQuotes;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+/// <summary>
+/// Sets the Replace Single Quotes mode.
+/// </summary>
 bool CBoundRecordSet::ReplaceSingleQuotes(bool bReplaceSingleQuotes)
 {
 	bool bOldValue = this->bcReplaceSingleQuotes;

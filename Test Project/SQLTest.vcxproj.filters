@@ -12,37 +12,40 @@
     <ClCompile Include="Entry.Cpp">
       <Filter>Source</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\%40Libraries\CSQLBinding\cBoundRecordSet.cpp">
+    <ClCompile Include="..\CBoundRecordSet.cpp">
       <Filter>CSQLBinding</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\%40Libraries\CSQLBinding\cRecordSet.cpp">
+    <ClCompile Include="..\CRecordSet.cpp">
       <Filter>CSQLBinding</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\%40Libraries\CSQLBinding\cSQL.cpp">
+    <ClCompile Include="..\CSQL.cpp">
       <Filter>CSQLBinding</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\%40Libraries\CSQLBinding\CSQLEncapsulation.cpp">
+    <ClCompile Include="..\CSQLEncapsulation.cpp">
       <Filter>CSQLBinding</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\%40Libraries\CSQLBinding\CSQLValue.cpp">
+    <ClCompile Include="..\CSQLValue.cpp">
       <Filter>CSQLBinding</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\%40Libraries\CSQLBinding\cBoundRecordSet.h">
+    <ClInclude Include="..\CBoundRecordSet.h">
       <Filter>CSQLBinding</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\%40Libraries\CSQLBinding\cRecordSet.h">
+    <ClInclude Include="..\CRecordSet.h">
       <Filter>CSQLBinding</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\%40Libraries\CSQLBinding\CSQL.h">
+    <ClInclude Include="..\CSQL.h">
       <Filter>CSQLBinding</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\%40Libraries\CSQLBinding\CSQLEncapsulation.H">
+    <ClInclude Include="..\CSQLEncapsulation.H">
       <Filter>CSQLBinding</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\%40Libraries\CSQLBinding\CSQLValue.h">
+    <ClInclude Include="..\CSQLValue.h">
       <Filter>CSQLBinding</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" />
   </ItemGroup>
 </Project>

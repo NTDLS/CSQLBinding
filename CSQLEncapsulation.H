@@ -12,10 +12,10 @@
 
 #include "CSQL.H"
 #include "CBoundRecordSet.H"
-#include "cRecordSet.H"
+#include "CRecordSet.H"
 #include "CSQLValue.H"
 
-typedef int(*ErrorHandler)(void *pCaller, const char *sSource, const char *sErrorMsg, const int iErrorNumber);
+typedef int(*ErrorHandler)(void* pCaller, const char* sSource, const char* sErrorMsg, const int iErrorNumber);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 #endif

@@ -20,7 +20,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CRecordSet::ReplaceSingleQuotes(char *sData, SQLLEN iDataSz)
+void CRecordSet::ReplaceSingleQuotes(char* sData, SQLLEN iDataSz)
 {
 	int iRPos = 0;
 
@@ -36,7 +36,7 @@ void CRecordSet::ReplaceSingleQuotes(char *sData, SQLLEN iDataSz)
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-SQLLEN CRecordSet::RTrim(char *sData, SQLLEN iDataSz)
+SQLLEN CRecordSet::RTrim(char* sData, SQLLEN iDataSz)
 {
 	SQLLEN iPos = iDataSz;
 
@@ -61,7 +61,7 @@ SQLLEN CRecordSet::RTrim(char *sData, SQLLEN iDataSz)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::Reset(void)
+bool CRecordSet::Reset()
 {
 	bool bResult = false;
 
@@ -73,7 +73,7 @@ bool CRecordSet::Reset(void)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::Close(void)
+bool CRecordSet::Close()
 {
 	bool bResult = (SQLFreeHandle(SQL_HANDLE_STMT, this->hSTMT) == SQL_SUCCESS);
 
@@ -86,7 +86,7 @@ bool CRecordSet::Close(void)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::Fetch(int *iErrorCode)
+bool CRecordSet::Fetch(int* iErrorCode)
 {
 	if (SQL_SUCCEEDED((*iErrorCode = SQLFetch(this->hSTMT))))
 	{
@@ -100,7 +100,7 @@ bool CRecordSet::Fetch(int *iErrorCode)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::Fetch(void)
+bool CRecordSet::Fetch()
 {
 	int iErrorCode = 0;
 	return this->Fetch(&iErrorCode);
@@ -108,15 +108,15 @@ bool CRecordSet::Fetch(void)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::GetData(const unsigned short iCol, short iType,
-	void * pvBuf, SQLLEN iBufSz, SQLLEN *piIndicator, short *piResult)
+bool CRecordSet::GetData(const unsigned short iColumnIndex, short iType,
+	void* pvBuf, SQLLEN iBufSz, SQLLEN* piIndicator, short* piResult)
 {
 	//SQL_SUCCESS, SQL_SUCCESS_WITH_INFO,
 	//	SQL_NO_DATA, SQL_STILL_EXECUTING,
 	//	SQL_ERROR, or SQL_INVALID_HANDLE
 
 	SQLRETURN iResult = SQLGetData(this->hSTMT,
-		(SQLUSMALLINT)iCol,
+		(SQLUSMALLINT)iColumnIndex,
 		(SQLSMALLINT)iType,
 		(SQLPOINTER)pvBuf,
 		iBufSz,
@@ -137,34 +137,33 @@ bool CRecordSet::GetData(const unsigned short iCol, short iType,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::GetData(const unsigned short iCol, short iType,
-	void *pvBuf, SQLLEN iBufSz, SQLLEN *piIndicator)
+bool CRecordSet::GetData(const unsigned short iColumnIndex, short iType,
+	void* pvBuf, SQLLEN iBufSz, SQLLEN* piIndicator)
 {
-	return this->GetData(iCol, iType, pvBuf, iBufSz, piIndicator, NULL);
+	return this->GetData(iColumnIndex, iType, pvBuf, iBufSz, piIndicator, NULL);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::GetColumnInfo(const int iCol, char *sOutName, int iSzOfOutName, int *iOutColNameLen,
-	int *ioutDataType, SQLULEN *iOutColSize, int *iNumOfDeciPlaces, int *iColNullable)
+bool CRecordSet::GetColumnInfo(const int iColumnIndex, char* sOutName, int iSzOfOutName, int* iOutColNameLen,
+	int* ioutDataType, SQLULEN* iOutColSize, int* iNumOfDeciPlaces, int* iColNullable)
 {
-	if (SQL_SUCCEEDED(SQLDescribeCol(this->hSTMT, iCol, (SQLCHAR *)sOutName, (SQLSMALLINT)iSzOfOutName,
-		(SQLSMALLINT *)iOutColNameLen, (SQLSMALLINT *)ioutDataType, iOutColSize,
-		(SQLSMALLINT *)iNumOfDeciPlaces, (SQLSMALLINT *)iColNullable)))
+	if (SQL_SUCCEEDED(SQLDescribeCol(this->hSTMT, iColumnIndex, (SQLCHAR*)sOutName, (SQLSMALLINT)iSzOfOutName,
+		(SQLSMALLINT*)iOutColNameLen, (SQLSMALLINT*)ioutDataType, iOutColSize,
+		(SQLSMALLINT*)iNumOfDeciPlaces, (SQLSMALLINT*)iColNullable)))
 	{
 		return true;
 	}
 	else return false;
 }
 
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::sColumnEx(const int iCol, char *sBuf, const SQLLEN iBufSz, SQLLEN *iOutLen)
+bool CRecordSet::GetColumnStringValue(const int iColumnIndex, char* sBuf, const SQLLEN iBufSz, SQLLEN* iOutLen)
 {
 	SQLLEN iLen = 0;
 
-	if (SQL_SUCCEEDED(SQLGetData(this->hSTMT, iCol, SQL_C_CHAR, sBuf, iBufSz, &iLen)))
+	if (SQL_SUCCEEDED(SQLGetData(this->hSTMT, iColumnIndex, SQL_C_CHAR, sBuf, iBufSz, &iLen)))
 	{
 		if (iLen > iBufSz)
 		{
@@ -196,13 +195,13 @@ bool CRecordSet::sColumnEx(const int iCol, char *sBuf, const SQLLEN iBufSz, SQLL
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::lColumnEx(const int iCol, long *plOutVal)
+bool CRecordSet::GetColumnLongValue(const int iColumnIndex, long* plOutVal)
 {
 	SQLLEN Indicator = 0;
 
 	int i = sizeof(Indicator);
 
-	if (SQL_SUCCEEDED(SQLGetData(this->hSTMT, iCol, SQL_C_LONG, plOutVal, sizeof(long), &Indicator)))
+	if (SQL_SUCCEEDED(SQLGetData(this->hSTMT, iColumnIndex, SQL_C_LONG, plOutVal, sizeof(long), &Indicator)))
 	{
 		return true;
 	}
@@ -214,11 +213,11 @@ bool CRecordSet::lColumnEx(const int iCol, long *plOutVal)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-long CRecordSet::lColumn(const int iCol)
+long CRecordSet::GetColumnLongValue(const int iColumnIndex)
 {
 	long lTemp = 0;
 
-	if (this->lColumnEx(iCol, &lTemp))
+	if (this->GetColumnLongValue(iColumnIndex, &lTemp))
 	{
 		return lTemp;
 	}
@@ -227,11 +226,11 @@ long CRecordSet::lColumn(const int iCol)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::dColumnEx(const int iCol, double *pdOutVal)
+bool CRecordSet::GetColumnDoubleValue(const int iColumnIndex, double* pdOutVal)
 {
 	SQLLEN Indicator = 0;
 
-	if (SQL_SUCCEEDED(SQLGetData(this->hSTMT, iCol, SQL_DOUBLE, pdOutVal, sizeof(double), &Indicator)))
+	if (SQL_SUCCEEDED(SQLGetData(this->hSTMT, iColumnIndex, SQL_DOUBLE, pdOutVal, sizeof(double), &Indicator)))
 	{
 		return true;
 	}
@@ -243,11 +242,11 @@ bool CRecordSet::dColumnEx(const int iCol, double *pdOutVal)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-double CRecordSet::dColumn(const int iCol)
+double CRecordSet::GetColumnDoubleValue(const int iColumnIndex)
 {
 	double dTemp = 0;
 
-	if (this->dColumnEx(iCol, &dTemp))
+	if (this->GetColumnDoubleValue(iColumnIndex, &dTemp))
 	{
 		return dTemp;
 	}
@@ -256,11 +255,11 @@ double CRecordSet::dColumn(const int iCol)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::fColumnEx(const int iCol, float *pfOutVal)
+bool CRecordSet::GetColumnFloatValue(const int iColumnIndex, float* pfOutVal)
 {
 	SQLLEN Indicator = 0;
 
-	if (SQL_SUCCEEDED(SQLGetData(this->hSTMT, iCol, SQL_FLOAT, pfOutVal, sizeof(float), &Indicator)))
+	if (SQL_SUCCEEDED(SQLGetData(this->hSTMT, iColumnIndex, SQL_FLOAT, pfOutVal, sizeof(float), &Indicator)))
 	{
 		return true;
 	}
@@ -272,11 +271,11 @@ bool CRecordSet::fColumnEx(const int iCol, float *pfOutVal)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-float CRecordSet::fColumn(const int iCol)
+float CRecordSet::GetColumnFloatValue(const int iColumnIndex)
 {
 	float fTemp = 0;
 
-	if (this->fColumnEx(iCol, &fTemp))
+	if (this->GetColumnFloatValue(iColumnIndex, &fTemp))
 	{
 		return fTemp;
 	}
@@ -285,11 +284,11 @@ float CRecordSet::fColumn(const int iCol)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::BinColumnEx(const int iCol, char *sBuf, const SQLLEN iBufSz, SQLLEN *iOutLen)
+bool CRecordSet::GetColumnBinaryValue(const int iColumnIndex, char* sBuf, const SQLLEN iBufSz, SQLLEN* iOutLen)
 {
 	SQLLEN iLen = 0;
 
-	if (SQL_SUCCEEDED(SQLGetData(this->hSTMT, iCol, SQL_C_BINARY, sBuf, iBufSz, &iLen)))
+	if (SQL_SUCCEEDED(SQLGetData(this->hSTMT, iColumnIndex, SQL_C_BINARY, sBuf, iBufSz, &iLen)))
 	{
 		if (iLen > iBufSz)
 		{
@@ -343,26 +342,26 @@ CRecordSet::~CRecordSet()
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::GetSQLState(char *sSQLState)
+bool CRecordSet::GetSQLState(char* sSQLState)
 {
 	return SQL_SUCCEEDED(SQLError(NULL, NULL,
-		this->hSTMT, (SQLCHAR *)sSQLState, NULL, NULL, NULL, NULL));
+		this->hSTMT, (SQLCHAR*)sSQLState, NULL, NULL, NULL, NULL));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::GetErrorMessage(int *iOutErr, char *sOutError, const int iErrBufSz)
+bool CRecordSet::GetErrorMessage(int* iOutErr, char* sOutError, const int iErrBufSz)
 {
 	SQLCHAR     sSQLState[20];
 	SQLSMALLINT iOutErrorMsgSz;
 
 	return SQL_SUCCEEDED(SQLError(NULL, NULL, this->hSTMT, sSQLState,
-		(SQLINTEGER *)iOutErr, (SQLCHAR *)sOutError, iErrBufSz, &iOutErrorMsgSz));
+		(SQLINTEGER*)iOutErr, (SQLCHAR*)sOutError, iErrBufSz, &iOutErrorMsgSz));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::ThrowErrorIfSet(void)
+bool CRecordSet::ThrowErrorIfSet()
 {
 	if (this->ThrowErrors())
 	{
@@ -374,7 +373,7 @@ bool CRecordSet::ThrowErrorIfSet(void)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::ThrowError(void)
+bool CRecordSet::ThrowError()
 {
 	char sErrorMsg[2048];
 	int iNativeError = 0;
@@ -400,7 +399,7 @@ void CRecordSet::SetErrorHandler(ErrorHandler pHandler)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::ThrowErrors(void)
+bool CRecordSet::ThrowErrors()
 {
 	return this->bcThrowErrors;
 }
@@ -416,7 +415,7 @@ bool CRecordSet::ThrowErrors(bool bThrowErrors)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::TrimCharData(void)
+bool CRecordSet::TrimCharData()
 {
 	return this->bcTrimCharData;
 }
@@ -432,7 +431,7 @@ bool CRecordSet::TrimCharData(bool bTrimCharData)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CRecordSet::ReplaceSingleQuotes(void)
+bool CRecordSet::ReplaceSingleQuotes()
 {
 	return this->bcReplaceSingleQuotes;
 }

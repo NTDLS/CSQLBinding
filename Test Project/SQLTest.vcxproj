@@ -19,13 +19,13 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseOfMfc>false</UseOfMfc>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -131,19 +131,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\%40Libraries\CSQLBinding\cBoundRecordSet.cpp" />
-    <ClCompile Include="..\..\..\%40Libraries\CSQLBinding\cRecordSet.cpp" />
-    <ClCompile Include="..\..\..\%40Libraries\CSQLBinding\cSQL.cpp" />
-    <ClCompile Include="..\..\..\%40Libraries\CSQLBinding\CSQLEncapsulation.cpp" />
-    <ClCompile Include="..\..\..\%40Libraries\CSQLBinding\CSQLValue.cpp" />
+    <ClCompile Include="..\CBoundRecordSet.cpp" />
+    <ClCompile Include="..\CRecordSet.cpp" />
+    <ClCompile Include="..\CSQL.cpp" />
+    <ClCompile Include="..\CSQLEncapsulation.cpp" />
+    <ClCompile Include="..\CSQLValue.cpp" />
     <ClCompile Include="Entry.Cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\%40Libraries\CSQLBinding\cBoundRecordSet.h" />
-    <ClInclude Include="..\..\..\%40Libraries\CSQLBinding\cRecordSet.h" />
-    <ClInclude Include="..\..\..\%40Libraries\CSQLBinding\CSQL.h" />
-    <ClInclude Include="..\..\..\%40Libraries\CSQLBinding\CSQLEncapsulation.H" />
-    <ClInclude Include="..\..\..\%40Libraries\CSQLBinding\CSQLValue.h" />
+    <ClInclude Include="..\CBoundRecordSet.h" />
+    <ClInclude Include="..\CRecordSet.h" />
+    <ClInclude Include="..\CSQL.h" />
+    <ClInclude Include="..\CSQLEncapsulation.H" />
+    <ClInclude Include="..\CSQLValue.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

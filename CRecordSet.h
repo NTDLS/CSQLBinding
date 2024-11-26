@@ -13,7 +13,7 @@
 #include <SQL.H>
 #include <SQLExt.H>
 
-typedef int(*ErrorHandler)(void *pCaller, const char *sSource, const char *sErrorMsg, const int iErrorNumber);
+typedef int(*ErrorHandler)(void* pCaller, const char* sSource, const char* sErrorMsg, const int iErrorNumber);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -27,43 +27,43 @@ private:
 	bool bcThrowErrors;
 
 public:
-	void *pPublicData;
+	void* pPublicData;
 
 	void SetErrorHandler(ErrorHandler pHandler);
 
-	bool Close(void);
-	bool Fetch(void);
-	bool Fetch(int *iErrorCode);
-	bool Reset(void);
+	bool Close();
+	bool Fetch();
+	bool Fetch(int* iErrorCode);
+	bool Reset();
 
-	bool GetData(const unsigned short iCol, short iType, void *pvBuf, SQLLEN iBufSz, SQLLEN *piIndicator);
-	bool GetData(const unsigned short iCol, short iType, void * pvBuf, SQLLEN iBufSz, SQLLEN *piIndicator, short *piResult);
-	bool GetColumnInfo(const int iCol, char *sOutName, int iSzOfOutName,
-		int *iOutColNameLen, int *ioutDataType, SQLULEN *iOutColSize, int *iNumOfDeciPlaces, int *iColNullable);
-	bool BinColumnEx(const int iCol, char *sBuf, const SQLLEN iBufSz, SQLLEN *iOutLen);
-	bool sColumnEx(const int iCol, char *sBuf, const SQLLEN iBufSz, SQLLEN *iOutLen);
-	bool lColumnEx(const int iCol, long *plOutVal);
-	long lColumn(const int iCol);
-	bool dColumnEx(const int iCol, double *pdOutVal);
-	double dColumn(const int iCol);
-	bool fColumnEx(const int iCol, float *pfOutVal);
-	float fColumn(const int iCol);
-	bool GetErrorMessage(int *iOutErr, char *sOutError, const int iErrBufSz);
-	bool GetSQLState(char *sSQLState);
-	bool ThrowErrorIfSet(void);
-	bool ThrowError(void);
+	bool GetData(const unsigned short iColumnIndex, short iType, void* pvBuf, SQLLEN iBufSz, SQLLEN* piIndicator);
+	bool GetData(const unsigned short iColumnIndex, short iType, void* pvBuf, SQLLEN iBufSz, SQLLEN* piIndicator, short* piResult);
+	bool GetColumnInfo(const int iColumnIndex, char* sOutName, int iSzOfOutName,
+		int* iOutColNameLen, int* ioutDataType, SQLULEN* iOutColSize, int* iNumOfDeciPlaces, int* iColNullable);
+	bool GetColumnBinaryValue(const int iColumnIndex, char* sBuf, const SQLLEN iBufSz, SQLLEN* iOutLen);
+	bool GetColumnStringValue(const int iColumnIndex, char* sBuf, const SQLLEN iBufSz, SQLLEN* iOutLen);
+	bool GetColumnLongValue(const int iColumnIndex, long* plOutVal);
+	long GetColumnLongValue(const int iColumnIndex);
+	bool GetColumnDoubleValue(const int iColumnIndex, double* pdOutVal);
+	double GetColumnDoubleValue(const int iColumnIndex);
+	bool GetColumnFloatValue(const int iColumnIndex, float* pfOutVal);
+	float GetColumnFloatValue(const int iColumnIndex);
+	bool GetErrorMessage(int* iOutErr, char* sOutError, const int iErrBufSz);
+	bool GetSQLState(char* sSQLState);
+	bool ThrowErrorIfSet();
+	bool ThrowError();
 
-	SQLLEN RTrim(char *sData, SQLLEN iDataSz);
-	void ReplaceSingleQuotes(char *sData, SQLLEN iDataSz);
+	SQLLEN RTrim(char* sData, SQLLEN iDataSz);
+	void ReplaceSingleQuotes(char* sData, SQLLEN iDataSz);
 
-	bool ThrowErrors(void);
+	bool ThrowErrors();
 	bool ThrowErrors(bool bThrowErrors);
 
 	bool TrimCharData(bool bTrimCharData);
-	bool TrimCharData(void);
+	bool TrimCharData();
 
 	bool ReplaceSingleQuotes(bool bReplaceSingleQuotes);
-	bool ReplaceSingleQuotes(void);
+	bool ReplaceSingleQuotes();
 
 	HSTMT hSTMT;
 	SQLLEN RowCount;

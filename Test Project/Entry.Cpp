@@ -12,12 +12,12 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TestStandardFetch(SQLCONNECTIONSTRING *conString);
-void TestAutoBinding(SQLCONNECTIONSTRING *conString);
+void TestStandardFetch(SQLCONNECTIONSTRING* conString);
+void TestAutoBinding(SQLCONNECTIONSTRING* conString);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int main(void)
+int main()
 {
 	SQLCONNECTIONSTRING conString;
 	memset(&conString, 0, sizeof(conString));
@@ -31,7 +31,7 @@ int main(void)
 
 	TestAutoBinding(&conString);
 
-	
+
 	system("pause");
 
 	return 0;
@@ -39,7 +39,7 @@ int main(void)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TestAutoBinding(SQLCONNECTIONSTRING *conString)
+void TestAutoBinding(SQLCONNECTIONSTRING* conString)
 {
 	CSQL sql;
 
@@ -61,7 +61,7 @@ void TestAutoBinding(SQLCONNECTIONSTRING *conString)
 		CBoundRecordSet rsColumns;
 
 		sprintf_s(sSQL, sizeof(sSQL), "SELECT TOP 100 * FROM sys.columns WHERE object_id = %d",
-			rsObjects.Values("object_id")->ToIntegerS());
+			rsObjects.Values("object_id")->ToSignedInt());
 
 		sql.Execute(sSQL, &rsColumns, true);
 
@@ -88,7 +88,7 @@ void TestAutoBinding(SQLCONNECTIONSTRING *conString)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TestStandardFetch(SQLCONNECTIONSTRING *conString)
+void TestStandardFetch(SQLCONNECTIONSTRING* conString)
 {
 	CSQL sql;
 
@@ -110,18 +110,18 @@ void TestStandardFetch(SQLCONNECTIONSTRING *conString)
 		CBoundRecordSet rsColumns;
 
 		sprintf_s(sSQL, sizeof(sSQL), "SELECT TOP 100 * FROM sys.columns WHERE object_id = %d",
-			rsObjects.Values("object_id")->ToIntegerS());
+			rsObjects.Values("object_id")->ToSignedInt());
 
 		sql.Execute(sSQL, &rsColumns, true);
 
-		CSQLValue *objectId = rsObjects.Values("object_id");
-		CSQLValue *objectName = rsObjects.Values("Name");
+		CSQLValue* objectId = rsObjects.Values("object_id");
+		CSQLValue* objectName = rsObjects.Values("Name");
 
-		printf("%d->%s\n", objectId->ToIntegerS(), objectName->ToString());
+		printf("%d->%s\n", objectId->ToSignedInt(), objectName->ToString());
 
 		while (rsColumns.Fetch())
 		{
-			CSQLValue *columnName = rsColumns.Values("Name");
+			CSQLValue* columnName = rsColumns.Values("Name");
 
 			printf("\t%s\n", columnName->ToString());
 

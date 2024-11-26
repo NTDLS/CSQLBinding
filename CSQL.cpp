@@ -17,14 +17,9 @@
 #include "CBoundRecordSet.H"
 #include "CRecordSet.H"
 
-#ifdef _USE_GLOBAL_MEMPOOL
-#include "../NSWFL/NSWFL.h"
-extern NSWFL::Memory::MemoryPool *pMem; //gMem must be defined and initalized elsewhere.
-#endif
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int DefaultSQLErrorHandler(void *pCaller, const char *sSource, const char *sErrorMsg, const int iErrorNumber)
+int DefaultSQLErrorHandler(void* pCaller, const char* sSource, const char* sErrorMsg, const int iErrorNumber)
 {
 	MessageBox(GetActiveWindow(), sErrorMsg, sSource, MB_ICONERROR);
 	return 0;
@@ -32,7 +27,7 @@ int DefaultSQLErrorHandler(void *pCaller, const char *sSource, const char *sErro
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CSQL::CSQL(void)
+CSQL::CSQL()
 {
 	this->pErrorHandler = NULL;
 	this->pPublicData = NULL;
@@ -44,28 +39,28 @@ CSQL::CSQL(void)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-CSQL::~CSQL(void)
+CSQL::~CSQL()
 {
 	this->Disconnect();
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::IsConnected(void)
+bool CSQL::IsConnected()
 {
 	return this->bConnected;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-const char *CSQL::ConnectionString(void)
+const char* CSQL::ConnectionString()
 {
 	return this->LastConnectionString;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Connect(const char *sServer, const char *sDatabase, ErrorHandler pHandler)
+bool CSQL::Connect(const char* sServer, const char* sDatabase, ErrorHandler pHandler)
 {
 	SQLCONNECTIONSTRING CS;
 	memset(&CS, 0, sizeof(CS));
@@ -86,7 +81,7 @@ bool CSQL::Connect(const char *sServer, const char *sDatabase, ErrorHandler pHan
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Connect(const char *sServer, const char *sDatabase)
+bool CSQL::Connect(const char* sServer, const char* sDatabase)
 {
 	SQLCONNECTIONSTRING CS;
 	memset(&CS, 0, sizeof(CS));
@@ -101,16 +96,16 @@ bool CSQL::Connect(const char *sServer, const char *sDatabase)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Connect(const char *sServer, const char *sDatabase,
-	const char *sUser, const char *sPassword)
+bool CSQL::Connect(const char* sServer, const char* sDatabase,
+	const char* sUser, const char* sPassword)
 {
 	return this->Connect(sServer, sDatabase, sUser, sPassword, DefaultSQLErrorHandler);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Connect(const char *sServer, const char *sDatabase,
-	const char *sUser, const char *sPassword, ErrorHandler pHandler)
+bool CSQL::Connect(const char* sServer, const char* sDatabase,
+	const char* sUser, const char* sPassword, ErrorHandler pHandler)
 {
 	SQLCONNECTIONSTRING CS;
 	memset(&CS, 0, sizeof(CS));
@@ -133,7 +128,7 @@ bool CSQL::Connect(const char *sServer, const char *sDatabase,
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Connect(const char *sConnectionString)
+bool CSQL::Connect(const char* sConnectionString)
 {
 	return this->Connect(sConnectionString, &DefaultSQLErrorHandler);
 }
@@ -161,7 +156,7 @@ bool CSQL::Connect(LPSQLCONNECTIONSTRING SQLCon)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Connect(const char *sConnectionString, ErrorHandler pHandler)
+bool CSQL::Connect(const char* sConnectionString, ErrorHandler pHandler)
 {
 	SQLRETURN Result;
 	SQLCHAR sConStrOut[1024];
@@ -183,7 +178,7 @@ bool CSQL::Connect(const char *sConnectionString, ErrorHandler pHandler)
 	}
 
 	// Set the environment attributes
-	Result = SQLSetEnvAttr(this->hcSQLEnvironment, SQL_ATTR_ODBC_VERSION, (void *)SQL_OV_ODBC3, 0);
+	Result = SQLSetEnvAttr(this->hcSQLEnvironment, SQL_ATTR_ODBC_VERSION, (void*)SQL_OV_ODBC3, 0);
 	if (!SQL_SUCCEEDED(Result))
 	{
 		ThrowErrorIfSet(NULL);
@@ -200,7 +195,7 @@ bool CSQL::Connect(const char *sConnectionString, ErrorHandler pHandler)
 		SQLFreeHandle(SQL_HANDLE_ENV, this->hcSQLEnvironment);
 		return false;
 	}
-	
+
 	// Set login timeout to 5 seconds.
 	if (!SQL_SUCCEEDED(SQLSetConnectAttr(this->hcSQLConnection, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER)5, NULL)))
 	{
@@ -209,7 +204,7 @@ bool CSQL::Connect(const char *sConnectionString, ErrorHandler pHandler)
 		SQLFreeHandle(SQL_HANDLE_ENV, this->hcSQLEnvironment);
 		return false;
 	}
-	
+
 	if (!SQL_SUCCEEDED(SQLSetConnectAttr(this->hcSQLConnection, SQL_ATTR_CURSOR_TYPE, (SQLPOINTER)this->icCursorType, NULL)))
 	{
 		ThrowErrorIfSet(NULL);
@@ -229,7 +224,7 @@ bool CSQL::Connect(const char *sConnectionString, ErrorHandler pHandler)
 	if (bcUseBulkOperations)
 	{
 		if (!SQL_SUCCEEDED(SQLSetConnectAttr(this->hcSQLConnection,
-			SQL_COPT_SS_BCP, (void *)SQL_BCP_ON, SQL_IS_INTEGER)))
+			SQL_COPT_SS_BCP, (void*)SQL_BCP_ON, SQL_IS_INTEGER)))
 		{
 			ThrowErrorIfSet(NULL);
 			SQLFreeHandle(SQL_HANDLE_DBC, this->hcSQLConnection);
@@ -242,13 +237,13 @@ bool CSQL::Connect(const char *sConnectionString, ErrorHandler pHandler)
 	Result = SQLDriverConnect(
 		this->hcSQLConnection,        // Connection handle.
 		NULL,                         // Window handle.
-		(SQLCHAR *)sConnectionString, // Input connect string.
+		(SQLCHAR*)sConnectionString, // Input connect string.
 		SQL_NTS,                      // Null-terminated string.
 		sConStrOut,                   // Address of output buffer.
 		sizeof(sConStrOut),           // Size of output buffer.
 		&iConStrOutSz,                // Address of output length.
 		SQL_DRIVER_NOPROMPT
-		);
+	);
 
 	if (!SQL_SUCCEEDED(Result))
 	{
@@ -265,7 +260,7 @@ bool CSQL::Connect(const char *sConnectionString, ErrorHandler pHandler)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::BuildConnectionString(LPSQLCONNECTIONSTRING SQLCon, char *sOut, int iOutSz)
+bool CSQL::BuildConnectionString(LPSQLCONNECTIONSTRING SQLCon, char* sOut, int iOutSz)
 {
 	char sTemp[1024];
 
@@ -317,21 +312,21 @@ bool CSQL::BuildConnectionString(LPSQLCONNECTIONSTRING SQLCon, char *sOut, int i
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::GetSQLState(char *sSQLState, HSTMT hStmt)
+bool CSQL::GetSQLState(char* sSQLState, HSTMT hStmt)
 {
 	return SQL_SUCCEEDED(SQLError(this->hcSQLEnvironment, this->hcSQLConnection,
-		hStmt, (SQLCHAR *)sSQLState, NULL, NULL, NULL, NULL));
+		hStmt, (SQLCHAR*)sSQLState, NULL, NULL, NULL, NULL));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::GetErrorMessage(int *iOutErr, char *sOutError, const int iErrBufSz, HSTMT hStmt)
+bool CSQL::GetErrorMessage(int* iOutErr, char* sOutError, const int iErrBufSz, HSTMT hStmt)
 {
 	SQLCHAR     sSQLState[20];
 	SQLSMALLINT iOutErrorMsgSz;
 
 	return SQL_SUCCEEDED(SQLError(this->hcSQLEnvironment, this->hcSQLConnection,
-		hStmt, sSQLState, (SQLINTEGER *)iOutErr, (SQLCHAR *)sOutError, iErrBufSz, &iOutErrorMsgSz));
+		hStmt, sSQLState, (SQLINTEGER*)iOutErr, (SQLCHAR*)sOutError, iErrBufSz, &iOutErrorMsgSz));
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -373,7 +368,7 @@ bool CSQL::ThrowError(HSTMT hStmt)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void CSQL::Disconnect(void)
+void CSQL::Disconnect()
 {
 	if (this->bConnected)
 	{
@@ -412,8 +407,8 @@ short CSQL::Execute(HSTMT hSTMT)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-short CSQL::BindParameter(HSTMT hSTMT, short iParamNumber, void *pUserData,
-	short iType, SQLLEN *iItemCount)
+short CSQL::BindParameter(HSTMT hSTMT, short iParamNumber, void* pUserData,
+	short iType, SQLLEN* iItemCount)
 {
 	/*
 		iUserData will be passed back out of pToken when calling ParamData.
@@ -449,7 +444,7 @@ SQLLEN CSQL::RowCount(HSTMT hSTMT)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HSTMT CSQL::Prepare(const char *sSQL)
+HSTMT CSQL::Prepare(const char* sSQL)
 {
 	HSTMT hSTMT = NULL;
 
@@ -466,7 +461,7 @@ HSTMT CSQL::Prepare(const char *sSQL)
 		SQLSetStmtAttr(hSTMT, SQL_ATTR_RETRIEVE_DATA, (SQLPOINTER)SQL_RD_OFF, NULL);
 		SQLSetStmtAttr(hSTMT, SQL_ATTR_QUERY_TIMEOUT, (SQLPOINTER)this->icTimeout, NULL);
 
-		Result = SQLPrepare(hSTMT, (unsigned char *)sSQL, (int)strlen(sSQL));
+		Result = SQLPrepare(hSTMT, (unsigned char*)sSQL, (int)strlen(sSQL));
 		if (SQL_SUCCEEDED(Result))
 		{
 			return hSTMT;
@@ -480,7 +475,7 @@ HSTMT CSQL::Prepare(const char *sSQL)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-short CSQL::PutData(HSTMT hSTMT, void *pData, SQLLEN iLength)
+short CSQL::PutData(HSTMT hSTMT, void* pData, SQLLEN iLength)
 {
 	SQLRETURN Result = SQLPutData(hSTMT, (SQLPOINTER)pData, iLength);
 	if (!SQL_SUCCEEDED(Result))
@@ -505,9 +500,9 @@ short CSQL::FreeHandle(HSTMT hSTMT)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-short CSQL::ParamData(HSTMT hSTMT, void **pToken)
+short CSQL::ParamData(HSTMT hSTMT, void** pToken)
 {
-	SQLRETURN Result = SQLParamData(hSTMT, (SQLPOINTER *)pToken);
+	SQLRETURN Result = SQLParamData(hSTMT, (SQLPOINTER*)pToken);
 	if (!SQL_SUCCEEDED(Result))
 	{
 		this->ThrowErrorIfSet(hSTMT);
@@ -517,7 +512,7 @@ short CSQL::ParamData(HSTMT hSTMT, void **pToken)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Execute(const char *sDatabase, const char *sSQL)
+bool CSQL::Execute(const char* sDatabase, const char* sSQL)
 {
 	char sOldDatabase[1024];
 	this->GetFocus(sOldDatabase, sizeof(sOldDatabase));
@@ -539,7 +534,7 @@ bool CSQL::Execute(const char *sDatabase, const char *sSQL)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Execute(const char *sSQL)
+bool CSQL::Execute(const char* sSQL)
 {
 	if (!bConnected)
 	{
@@ -557,7 +552,7 @@ bool CSQL::Execute(const char *sSQL)
 		SQLSetStmtAttr(hSTMT, SQL_ATTR_RETRIEVE_DATA, (SQLPOINTER)SQL_RD_OFF, NULL);
 		SQLSetStmtAttr(hSTMT, SQL_ATTR_QUERY_TIMEOUT, (SQLPOINTER)this->icTimeout, NULL);
 
-		Result = SQLExecDirect(hSTMT, (unsigned char *)sSQL, (int)strlen(sSQL));
+		Result = SQLExecDirect(hSTMT, (unsigned char*)sSQL, (int)strlen(sSQL));
 		if (SQL_SUCCEEDED(Result) || Result == SQL_NO_DATA)
 		{
 			if (Result == SQL_SUCCESS || Result == SQL_NO_DATA || Result == SQL_SUCCESS_WITH_INFO)
@@ -580,14 +575,14 @@ bool CSQL::Execute(const char *sSQL)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Execute(const char *sSQL, CRecordSet *lpMyRS)
+bool CSQL::Execute(const char* sSQL, CRecordSet* lpMyRS)
 {
 	return this->Execute(sSQL, lpMyRS, this->icCursorType);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Execute(const char *sSQL, CRecordSet *lpMyRS, int iSessionCursorType)
+bool CSQL::Execute(const char* sSQL, CRecordSet* lpMyRS, int iSessionCursorType)
 {
 	if (!this->bConnected)
 	{
@@ -605,7 +600,7 @@ bool CSQL::Execute(const char *sSQL, CRecordSet *lpMyRS, int iSessionCursorType)
 		SQLSetStmtAttr(lpMyRS->hSTMT, SQL_ATTR_CONCURRENCY, (SQLPOINTER)SQL_CONCUR_READ_ONLY, NULL);
 		SQLSetStmtAttr(lpMyRS->hSTMT, SQL_ATTR_CURSOR_TYPE, (SQLPOINTER)iSessionCursorType, NULL);
 
-		Result = SQLPrepare(lpMyRS->hSTMT, (unsigned char *)sSQL, (int)strlen(sSQL));
+		Result = SQLPrepare(lpMyRS->hSTMT, (unsigned char*)sSQL, (int)strlen(sSQL));
 		if (SQL_SUCCEEDED(Result))
 		{
 			Result = SQLExecute(lpMyRS->hSTMT);
@@ -616,7 +611,7 @@ bool CSQL::Execute(const char *sSQL, CRecordSet *lpMyRS, int iSessionCursorType)
 					lpMyRS->RowCount = 0;
 				}
 
-				if (SQLNumResultCols(lpMyRS->hSTMT, (SQLSMALLINT *)&lpMyRS->ColumnCount) != SQL_SUCCESS)
+				if (SQLNumResultCols(lpMyRS->hSTMT, (SQLSMALLINT*)&lpMyRS->ColumnCount) != SQL_SUCCESS)
 				{
 					lpMyRS->ColumnCount = 0;
 				}
@@ -635,28 +630,28 @@ bool CSQL::Execute(const char *sSQL, CRecordSet *lpMyRS, int iSessionCursorType)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Execute(const char *sSQL, CBoundRecordSet *lpMyRS)
+bool CSQL::Execute(const char* sSQL, CBoundRecordSet* lpMyRS)
 {
 	return this->Execute(sSQL, lpMyRS, true, this->icCursorType);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Execute(const char *sSQL, CBoundRecordSet *lpMyRS, int iSessionCursorType)
+bool CSQL::Execute(const char* sSQL, CBoundRecordSet* lpMyRS, int iSessionCursorType)
 {
 	return this->Execute(sSQL, lpMyRS, true, iSessionCursorType);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Execute(const char *sSQL, CBoundRecordSet *lpMyRS, bool AutoBindAll)
+bool CSQL::Execute(const char* sSQL, CBoundRecordSet* lpMyRS, bool AutoBindAll)
 {
 	return this->Execute(sSQL, lpMyRS, AutoBindAll, this->icCursorType);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Execute(const char *sSQL, CBoundRecordSet *lpMyRS, bool AutoBindAll, int iSessionCursorType)
+bool CSQL::Execute(const char* sSQL, CBoundRecordSet* lpMyRS, bool AutoBindAll, int iSessionCursorType)
 {
 	if (!this->bConnected)
 	{
@@ -674,7 +669,7 @@ bool CSQL::Execute(const char *sSQL, CBoundRecordSet *lpMyRS, bool AutoBindAll, 
 		SQLSetStmtAttr(lpMyRS->hSTMT, SQL_ATTR_CONCURRENCY, (SQLPOINTER)SQL_CONCUR_READ_ONLY, NULL);
 		SQLSetStmtAttr(lpMyRS->hSTMT, SQL_ATTR_CURSOR_TYPE, (SQLPOINTER)iSessionCursorType, NULL);
 
-		Result = SQLPrepare(lpMyRS->hSTMT, (unsigned char *)sSQL, (int)strlen(sSQL));
+		Result = SQLPrepare(lpMyRS->hSTMT, (unsigned char*)sSQL, (int)strlen(sSQL));
 		if (SQL_SUCCEEDED(Result))
 		{
 			Result = SQLExecute(lpMyRS->hSTMT);
@@ -685,20 +680,15 @@ bool CSQL::Execute(const char *sSQL, CBoundRecordSet *lpMyRS, bool AutoBindAll, 
 					lpMyRS->RowCount = 0;
 				}
 
-				if (SQLNumResultCols(lpMyRS->hSTMT, (SQLSMALLINT *)&lpMyRS->Columns.Count) != SQL_SUCCESS)
+				if (SQLNumResultCols(lpMyRS->hSTMT, (SQLSMALLINT*)&lpMyRS->Columns.Count) != SQL_SUCCESS)
 				{
 					lpMyRS->Columns.Count = 0;
 				}
 
 				if (lpMyRS->Columns.Count > 0) //Fill in the column info for the RecordSet.
 				{
-#ifdef _USE_GLOBAL_MEMPOOL
-					lpMyRS->Columns.Column = (LPRECORDSET_COLUMNINFO)
-						pMem->Allocate(lpMyRS->Columns.Count, sizeof(RECORDSET_COLUMNINFO));
-#else
 					lpMyRS->Columns.Column = (LPRECORDSET_COLUMNINFO)
 						calloc(lpMyRS->Columns.Count, sizeof(RECORDSET_COLUMNINFO));
-#endif
 
 					for (int iCol = 1; iCol < (lpMyRS->Columns.Count + 1); iCol++)
 					{
@@ -739,28 +729,28 @@ bool CSQL::Execute(const char *sSQL, CBoundRecordSet *lpMyRS, bool AutoBindAll, 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Execute(const char *sDatabase, const char *sSQL, CBoundRecordSet *lpMyRS)
+bool CSQL::Execute(const char* sDatabase, const char* sSQL, CBoundRecordSet* lpMyRS)
 {
 	return this->Execute(sDatabase, sSQL, lpMyRS, this->icCursorType);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Execute(const char *sDatabase, const char *sSQL, CBoundRecordSet *lpMyRS, int iSessionCursorType)
+bool CSQL::Execute(const char* sDatabase, const char* sSQL, CBoundRecordSet* lpMyRS, int iSessionCursorType)
 {
 	return this->Execute(sDatabase, sSQL, lpMyRS, true, iSessionCursorType);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Execute(const char *sDatabase, const char *sSQL, CBoundRecordSet *lpMyRS, bool AutoBindAll)
+bool CSQL::Execute(const char* sDatabase, const char* sSQL, CBoundRecordSet* lpMyRS, bool AutoBindAll)
 {
 	return this->Execute(sDatabase, sSQL, lpMyRS, AutoBindAll, this->icCursorType);
 
 }
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Execute(const char *sDatabase, const char *sSQL, CBoundRecordSet *lpMyRS, bool AutoBindAll, int iSessionCursorType)
+bool CSQL::Execute(const char* sDatabase, const char* sSQL, CBoundRecordSet* lpMyRS, bool AutoBindAll, int iSessionCursorType)
 {
 	char sOldDatabase[1024];
 	this->GetFocus(sOldDatabase, sizeof(sOldDatabase));
@@ -782,7 +772,7 @@ bool CSQL::Execute(const char *sDatabase, const char *sSQL, CBoundRecordSet *lpM
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::GetFocus(char *sOutDatabaseName, int iOutDatabaseNameSz)
+bool CSQL::GetFocus(char* sOutDatabaseName, int iOutDatabaseNameSz)
 {
 	if (bConnected)
 	{
@@ -795,7 +785,7 @@ bool CSQL::GetFocus(char *sOutDatabaseName, int iOutDatabaseNameSz)
 			if (rsTemp.Fetch())
 			{
 				SQLLEN iLength = 0;
-				if (rsTemp.sColumnEx(1, sOutDatabaseName, iOutDatabaseNameSz, &iResult))
+				if (rsTemp.GetColumnStringValue(1, sOutDatabaseName, iOutDatabaseNameSz, &iResult))
 				{
 					return true;
 				}
@@ -809,7 +799,7 @@ bool CSQL::GetFocus(char *sOutDatabaseName, int iOutDatabaseNameSz)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::Focus(const char *sDatabaseName)
+bool CSQL::Focus(const char* sDatabaseName)
 {
 	if (!this->bConnected)
 		return false;
@@ -822,7 +812,7 @@ bool CSQL::Focus(const char *sDatabaseName)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int CSQL::TransactionDepth(void)
+int CSQL::TransactionDepth()
 {
 	if (!this->bConnected)
 		return -1;
@@ -835,7 +825,7 @@ int CSQL::TransactionDepth(void)
 	{
 		if (rsTemp.Fetch())
 		{
-			if (!rsTemp.lColumnEx(1, (long *)&iResult))
+			if (!rsTemp.GetColumnLongValue(1, (long*)&iResult))
 			{
 				iResult = -4;
 			}
@@ -851,19 +841,19 @@ int CSQL::TransactionDepth(void)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::BeginTransaction(void)
+bool CSQL::BeginTransaction()
 {
 	return this->BeginTransaction(NULL);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::BeginTransaction(const char *sName)
+bool CSQL::BeginTransaction(const char* sName)
 {
 	if (!this->bConnected)
 		return false;
 
-	const char *sTrans = "BEGIN TRANSACTION";
+	const char* sTrans = "BEGIN TRANSACTION";
 	char sSQL[1024];
 	if (sName)
 	{
@@ -878,19 +868,19 @@ bool CSQL::BeginTransaction(const char *sName)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::CommitTransaction(void)
+bool CSQL::CommitTransaction()
 {
 	return this->CommitTransaction(NULL);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::CommitTransaction(const char *sName)
+bool CSQL::CommitTransaction(const char* sName)
 {
 	if (!this->bConnected)
 		return false;
 
-	const char *sTrans = "COMMIT TRANSACTION";
+	const char* sTrans = "COMMIT TRANSACTION";
 	char sSQL[1024];
 	if (sName)
 	{
@@ -905,19 +895,19 @@ bool CSQL::CommitTransaction(const char *sName)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::RollbackTransaction(void)
+bool CSQL::RollbackTransaction()
 {
 	return this->RollbackTransaction(NULL);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::RollbackTransaction(const char *sName)
+bool CSQL::RollbackTransaction(const char* sName)
 {
 	if (!this->bConnected)
 		return false;
 
-	const char *sTrans = "ROLLBACK TRANSACTION";
+	const char* sTrans = "ROLLBACK TRANSACTION";
 	char sSQL[1024];
 	if (sName)
 	{
@@ -939,7 +929,7 @@ void CSQL::SetErrorHandler(ErrorHandler pHandler)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-int CSQL::CursorType(void)
+int CSQL::CursorType()
 {
 	return this->icCursorType;
 }
@@ -955,7 +945,7 @@ int CSQL::CursorType(int iCursorType)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-bool CSQL::ThrowErrors(void)
+bool CSQL::ThrowErrors()
 {
 	return this->bcThrowErrors;
 }
@@ -971,21 +961,21 @@ bool CSQL::ThrowErrors(bool bThrowErrors)
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HDBC CSQL::ConnectionHandle(void)
+HDBC CSQL::ConnectionHandle()
 {
 	return this->hcSQLConnection;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-HDBC CSQL::EnvironmentHandle(void)
+HDBC CSQL::EnvironmentHandle()
 {
 	return this->hcSQLEnvironment;
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-unsigned int CSQL::TimeOut(void)
+unsigned int CSQL::TimeOut()
 {
 	return this->icTimeout;
 }

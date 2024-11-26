@@ -13,7 +13,7 @@
 #include <SQL.H>
 #include <SQLExt.H>
 
-typedef int(*ErrorHandler)(void *pCaller, const char *sSource, const char *sErrorMsg, const int iErrorNumber);
+typedef int(*ErrorHandler)(void* pCaller, const char* sSource, const char* sErrorMsg, const int iErrorNumber);
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -79,7 +79,7 @@ typedef struct _TAG_BINDINGDATA {
 	LPVOID Buffer;
 	SQLLEN Size;
 	bool IsNull;
-} RECORDSET_SQLVALUE, *LPRECORDSET_SQLVALUE;
+} RECORDSET_SQLVALUE, * LPRECORDSET_SQLVALUE;
 
 typedef struct _TAG_COLUMNINFO {
 	RECORDSET_SQLVALUE Data;
@@ -91,12 +91,12 @@ typedef struct _TAG_COLUMNINFO {
 	int Ordinal;
 	bool IsBound;
 	bool IsNullable;
-} RECORDSET_COLUMNINFO, *LPRECORDSET_COLUMNINFO;
+} RECORDSET_COLUMNINFO, * LPRECORDSET_COLUMNINFO;
 
 typedef struct _TAG_COLUMN {
-	RECORDSET_COLUMNINFO *Column;
+	RECORDSET_COLUMNINFO* Column;
 	int Count;
-} RECORDSET_COLUMN, *LPRECORDSET_COLUMN;
+} RECORDSET_COLUMN, * LPRECORDSET_COLUMN;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -109,38 +109,38 @@ private:
 	bool bcThrowErrors;
 	bool bcIsValid;
 
-	SQLLEN RTrim(char *sData, SQLLEN iDataSz);
-	void ReplaceSingleQuotes(char *sData, SQLLEN iDataSz);
+	SQLLEN RTrim(char* sData, SQLLEN iDataSz);
+	void ReplaceSingleQuotes(char* sData, SQLLEN iDataSz);
 
 public:
-	void *pPublicData;
+	void* pPublicData;
 
 	void Initialize(LPRECORDSET_COLUMNINFO lpColumnValue,
 		bool bTrimCharData, bool bReplaceSingleQuotes, bool bThrowErrors);
 
-	bool ThrowErrors(void);
+	bool ThrowErrors();
 	bool ThrowErrors(bool bThrowErrors);
 
 	bool TrimCharData(bool bTrimCharData);
-	bool TrimCharData(void);
+	bool TrimCharData();
 
 	bool ReplaceSingleQuotes(bool bReplaceSingleQuotes);
-	bool ReplaceSingleQuotes(void);
+	bool ReplaceSingleQuotes();
 
-	bool IsValid(void);
-	bool IsNull(void);
-	SQLLEN Size(void);
-	char *ToString(void);
-	SQLLEN ToString(char *sOut, int iMaxSz);
-	signed int ToIntegerS(void);
-	unsigned int ToIntegerU(void);
-	double ToDouble(void);
-	float ToFloat(void);
-	unsigned __int64 ToI64U(void);
-	signed __int64 ToI64S(void);
-	bool ToBoolean(void);
-	unsigned short ToShortU(void);
-	signed short ToShortS(void);
+	bool IsValid();
+	bool IsNull();
+	SQLLEN Size();
+	char* ToString();
+	SQLLEN ToString(char* sOut, int iMaxSz);
+	signed int ToSignedInt();
+	unsigned int ToUnsignedInt();
+	double ToDouble();
+	float ToFloat();
+	unsigned __int64 ToUnsignedInt64();
+	signed __int64 ToSignedInt64();
+	bool ToBoolean();
+	unsigned short ToUnsignedShort();
+	signed short ToSignedShort();
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
