@@ -65,10 +65,10 @@ bool CSQL::Connect(const char* sServer, const char* sDatabase, ErrorHandler pHan
 	SQLCONNECTIONSTRING CS;
 	memset(&CS, 0, sizeof(CS));
 
-	CS.bUseTrustedConnection = true;
-	strcpy_s(CS.sDriver, sizeof(CS.sDriver), "{SQL Server}");
-	strcpy_s(CS.sDatabase, sizeof(CS.sDatabase), sDatabase);
-	strcpy_s(CS.sServer, sizeof(CS.sServer), sServer);
+	CS.UseTrustedConnection = true;
+	strcpy_s(CS.Driver, sizeof(CS.Driver), "{SQL Server}");
+	strcpy_s(CS.Database, sizeof(CS.Database), sDatabase);
+	strcpy_s(CS.Server, sizeof(CS.Server), sServer);
 
 	ErrorHandler plHandler = pHandler;
 	if (!plHandler)
@@ -86,10 +86,10 @@ bool CSQL::Connect(const char* sServer, const char* sDatabase)
 	SQLCONNECTIONSTRING CS;
 	memset(&CS, 0, sizeof(CS));
 
-	CS.bUseTrustedConnection = true;
-	strcpy_s(CS.sDriver, sizeof(CS.sDriver), "{SQL Server}");
-	strcpy_s(CS.sDatabase, sizeof(CS.sDatabase), sDatabase);
-	strcpy_s(CS.sServer, sizeof(CS.sServer), sServer);
+	CS.UseTrustedConnection = true;
+	strcpy_s(CS.Driver, sizeof(CS.Driver), "{SQL Server}");
+	strcpy_s(CS.Database, sizeof(CS.Database), sDatabase);
+	strcpy_s(CS.Server, sizeof(CS.Server), sServer);
 
 	return this->Connect(&CS, &DefaultSQLErrorHandler);
 }
@@ -110,12 +110,12 @@ bool CSQL::Connect(const char* sServer, const char* sDatabase,
 	SQLCONNECTIONSTRING CS;
 	memset(&CS, 0, sizeof(CS));
 
-	CS.bUseTrustedConnection = false;
-	strcpy_s(CS.sDriver, sizeof(CS.sDriver), "{SQL Server}");
-	strcpy_s(CS.sDatabase, sizeof(CS.sDatabase), sDatabase);
-	strcpy_s(CS.sServer, sizeof(CS.sServer), sServer);
-	strcpy_s(CS.sUID, sizeof(CS.sUID), sUser);
-	strcpy_s(CS.sPwd, sizeof(CS.sPwd), sPassword);
+	CS.UseTrustedConnection = false;
+	strcpy_s(CS.Driver, sizeof(CS.Driver), "{SQL Server}");
+	strcpy_s(CS.Database, sizeof(CS.Database), sDatabase);
+	strcpy_s(CS.Server, sizeof(CS.Server), sServer);
+	strcpy_s(CS.UserName, sizeof(CS.UserName), sUser);
+	strcpy_s(CS.Password, sizeof(CS.Password), sPassword);
 
 	ErrorHandler plHandler = pHandler;
 	if (!plHandler)
@@ -273,37 +273,42 @@ bool CSQL::BuildConnectionString(LPSQLCONNECTIONSTRING SQLCon, char* sOut, int i
 
 	//Driver: {SQL Server}
 
-	sprintf_s(sOut, iOutSz, "DRIVER=%s;SERVER=%s;", SQLCon->sDriver, SQLCon->sServer);
+	sprintf_s(sOut, iOutSz, "DRIVER=%s;SERVER=%s;Encrypt=No;", SQLCon->Driver, SQLCon->Server);
 
-	if (strlen(SQLCon->sDatabase) > 0)
+	if (strlen(SQLCon->Database) > 0)
 	{
-		sprintf_s(sTemp, sizeof(sTemp), "DATABASE=%s;", SQLCon->sDatabase);
+		sprintf_s(sTemp, sizeof(sTemp), "DATABASE=%s;", SQLCon->Database);
 		strcat_s(sOut, iOutSz, sTemp);
 	}
 
-	if (strlen(SQLCon->sApplicationName) > 0)
+	if (strlen(SQLCon->ApplicationName) > 0)
 	{
-		sprintf_s(sTemp, sizeof(sTemp), "APP=%s;", SQLCon->sApplicationName);
+		sprintf_s(sTemp, sizeof(sTemp), "APP=%s;", SQLCon->ApplicationName);
 		strcat_s(sOut, iOutSz, sTemp);
 	}
 
-	if (SQLCon->bUseTCPIPConnection)
+	if (SQLCon->Port != 0)
 	{
-		sprintf_s(sTemp, sizeof(sTemp), "NETWORK=DBMSSOCN;ADDRESS=%s,%d;", SQLCon->sServer, SQLCon->iPort);
+		sprintf_s(sTemp, sizeof(sTemp), "NETWORK=dbmssocn;ADDRESS=%s,%d;", SQLCon->Server, SQLCon->Port);
 		strcat_s(sOut, iOutSz, sTemp);
 	}
 
-	if (SQLCon->bUseMARS)
+	if (SQLCon->TrustServerCertificate)
+	{
+		strcat_s(sOut, iOutSz, "TrustServerCertificate=yes;");
+	}
+
+	if (SQLCon->UseMultipleActiveResultRest)
 	{
 		strcat_s(sOut, iOutSz, "MARS_Connection=yes;");
 	}
 
-	if (SQLCon->bUseTrustedConnection)
+	if (SQLCon->UseTrustedConnection)
 	{
 		strcat_s(sOut, iOutSz, "TRUSTED_CONNECTION=yes;");
 	}
 	else {
-		sprintf_s(sTemp, sizeof(sTemp), "UID=%s;PWD=%s;TRUSTED_CONNECTION=no;", SQLCon->sUID, SQLCon->sPwd);
+		sprintf_s(sTemp, sizeof(sTemp), "UID=%s;PWD=%s;TRUSTED_CONNECTION=no;", SQLCon->UserName, SQLCon->Password);
 		strcat_s(sOut, iOutSz, sTemp);
 	}
 
@@ -380,6 +385,7 @@ void CSQL::Disconnect()
 	if (this->LastConnectionString)
 	{
 		free(this->LastConnectionString);
+		this->LastConnectionString = NULL;
 	}
 
 	this->hcSQLConnection = NULL;
@@ -390,7 +396,7 @@ void CSQL::Disconnect()
 	this->bcUseBulkOperations = false;
 	this->icTimeout = 30;
 	this->icCursorType = SQL_CURSOR_STATIC; //Slow but returns row count.
-	//this->icCursorType = SQL_CURSOR_FORWARD_ONLY; //Fast but doesnt return row count.
+	//this->icCursorType = SQL_CURSOR_FORWARD_ONLY; //Fast but doesn't return row count.
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

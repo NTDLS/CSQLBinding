@@ -23,18 +23,18 @@ typedef int(*ErrorHandler)(void* pCaller, const char* sSource, const char* sErro
 
 typedef struct _TAG_SQLCONNECTION {
 
-	char* sApplicationName;
-	char* sDriver;
-	char* sServer;
-	char* sDatabase;
-	char* sUID;
-	char* sPwd;
+	char* ApplicationName;
+	char* Driver;
+	char* Server;
+	char* Database;
+	char* UserName;
+	char* Password;
 
-	int iPort;
+	int Port;
 
-	bool bUseTrustedConnection;
-	bool bUseTCPIPConnection;
-	bool bUseMARS;
+	bool UseTrustedConnection;
+	bool UseMultipleActiveResultRest;
+	bool TrustServerCertificate;
 
 } SQLCONNECTIONSTRING, * LPSQLCONNECTIONSTRING;
 

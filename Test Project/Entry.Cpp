@@ -12,25 +12,25 @@
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TestStandardFetch(SQLCONNECTIONSTRING* conString);
-void TestAutoBinding(SQLCONNECTIONSTRING* conString);
+void TestStandardFetch(SQLCONNECTIONSTRING* connectionString);
+void TestAutoBinding(SQLCONNECTIONSTRING* connectionString);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 int main()
 {
-	SQLCONNECTIONSTRING conString;
-	memset(&conString, 0, sizeof(conString));
-	conString.bUseTrustedConnection = true;
-	conString.sDriver = "{SQL Server}";
-	conString.sDatabase = "msdb";
-	conString.sServer = ".";
-	conString.sApplicationName = "SQL Test App";
+	SQLCONNECTIONSTRING connectionString;
+	memset(&connectionString, 0, sizeof(connectionString));
+	connectionString.UseTrustedConnection = true;
+	connectionString.Driver = "{SQL Server}";
+	connectionString.Database = "master";
+	connectionString.Server = ".";
+	//connectionString.Port = 1433;
+	connectionString.ApplicationName = "SQL Test App";
 
-	TestStandardFetch(&conString);
+	TestStandardFetch(&connectionString);
 
-	TestAutoBinding(&conString);
-
+	TestAutoBinding(&connectionString);
 
 	system("pause");
 
@@ -39,13 +39,13 @@ int main()
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TestAutoBinding(SQLCONNECTIONSTRING* conString)
+void TestAutoBinding(SQLCONNECTIONSTRING* connectionString)
 {
 	CSQL sql;
 
 	sql.ThrowErrors(true);
 
-	if (!sql.Connect(conString))
+	if (!sql.Connect(connectionString))
 	{
 		return;
 	}
@@ -88,13 +88,13 @@ void TestAutoBinding(SQLCONNECTIONSTRING* conString)
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void TestStandardFetch(SQLCONNECTIONSTRING* conString)
+void TestStandardFetch(SQLCONNECTIONSTRING* connectionString)
 {
 	CSQL sql;
 
 	sql.ThrowErrors(true);
 
-	if (!sql.Connect(conString))
+	if (!sql.Connect(connectionString))
 	{
 		return;
 	}
